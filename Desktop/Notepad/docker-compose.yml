@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: collabai_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: collabuser
+      POSTGRES_PASSWORD: collabpassword
+      POSTGRES_DB: collabai
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: collabai_web
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql://collabuser:collabpassword@db:5432/collabai?schema=public
+      - LIVEBLOCKS_SECRET_KEY=sk_dev_your_secret_key
+      - NEXTAUTH_SECRET=your_jwt_auth_secret_key
+      - GEMINI_API_KEY=your_gemini_api_key
+      - NODE_ENV=production
+
+volumes:
+  postgres_data:

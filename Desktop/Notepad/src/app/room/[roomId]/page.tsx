@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Room } from "@/app/Room";
 import { StorageTldraw } from "@/components/StorageTldraw";
+import { RoomHeader } from "@/components/RoomHeader";
+import { LiveCursors } from "@/components/LiveCursors";
 import { 
   Tldraw, 
   DefaultStylePanel, 
@@ -67,6 +69,7 @@ export default function RoomPage({ params }: Props) {
   const { roomId } = React.use(params);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLiveblocksConfigured, setIsLiveblocksConfigured] = useState<boolean | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetch("/api/config")
@@ -83,31 +86,26 @@ export default function RoomPage({ params }: Props) {
     <div className="relative flex h-screen w-screen overflow-hidden bg-[#faf9f5]">
       
       {/* Main Canvas Area */}
-      <div className="relative flex-1 h-full w-full">
+      <div ref={containerRef} className="relative flex-1 h-full w-full">
         {isLiveblocksConfigured === null ? (
           <div className="flex h-full w-full items-center justify-center bg-[#faf9f5]">
             <div className="flex flex-col items-center gap-3">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-stone-200 border-t-purple-650" />
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-stone-200 border-t-purple-600" />
               <p className="text-xs font-medium text-stone-500">Connecting to Project InkSync...</p>
             </div>
           </div>
         ) : isLiveblocksConfigured ? (
           <Room roomId={roomId}>
             <StorageTldraw />
+            {/* Sync pointers on top of infinite canvas */}
+            <LiveCursors containerRef={containerRef} />
           </Room>
         ) : (
           <LocalMinimalistTldraw />
         )}
         
-        {/* Top-Left Navigation / Room Metadata Overlay */}
-        {/* Dashboard / Room Metadata Placeholder */}
-        <div className="absolute top-4 left-4 z-[1000] flex items-center gap-2 rounded-lg bg-white/80 backdrop-blur-md px-3 py-2 shadow-sm border border-stone-200/50">
-          <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Project InkSync</span>
-          <span className="text-stone-300">/</span>
-          <span className="text-sm font-medium text-stone-850">
-            Room: {roomId} {isLiveblocksConfigured === false && <span className="text-stone-400 font-normal">(Local)</span>}
-          </span>
-        </div>
+        {/* Custom Header: Title, Liveblocks Status Indicator, and Share Invite Link */}
+        <RoomHeader roomId={roomId} isLiveblocksConfigured={isLiveblocksConfigured ?? false} />
 
         {/* Collapsible right sidebar trigger button */}
         <button

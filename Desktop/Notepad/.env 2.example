@@ -1,0 +1,48 @@
+# =========================================================================
+# CollabAI Environment Variables Configuration Template
+# =========================================================================
+# Copy this file to '.env.local' in development or configure these variables
+# directly in your production hosting environment.
+# =========================================================================
+
+# -------------------------------------------------------------------------
+# 1. Database Configurations (Prisma ORM)
+# -------------------------------------------------------------------------
+# [REQUIRED] PostgreSQL connection string used by Prisma Client to sync schemas.
+# Example format: postgresql://username:password@localhost:5432/dbname?schema=public
+DATABASE_URL="postgresql://collabuser:collabpassword@localhost:5432/collabai?schema=public"
+
+# -------------------------------------------------------------------------
+# 2. Authentication & Cookie Sessions
+# -------------------------------------------------------------------------
+# [REQUIRED] Secret key used for signing and encrypting session JWT cookies.
+# Generate a secure random string (e.g. via: openssl rand -base64 32)
+NEXTAUTH_SECRET="your-32-character-minimum-jwt-secret-key-goes-here"
+
+# [OPTIONAL] Node environment mode. Defaults to development.
+# Options: development, production, test
+NODE_ENV="development"
+
+# [OPTIONAL] Public URL host of the application, used in absolute link routing.
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+
+# -------------------------------------------------------------------------
+# 3. Real-Time Collaboration (Liveblocks)
+# -------------------------------------------------------------------------
+# [REQUIRED] Secret key from your Liveblocks dashboard (https://liveblocks.io)
+# Enables multiplayer drawing state synchronization and live presence cursors.
+LIVEBLOCKS_SECRET_KEY="sk_dev_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+# -------------------------------------------------------------------------
+# 4. AI Provider & RAG Embeddings (Google Gemini)
+# -------------------------------------------------------------------------
+# [REQUIRED] Gemini API Key from Google AI Studio (https://aistudio.google.com)
+# Powers specialized AI Orchestrator agents and text embedding generation for RAG searches.
+GEMINI_API_KEY="AIzaSyXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+
+# -------------------------------------------------------------------------
+# 5. File Storage & Email Services
+# -------------------------------------------------------------------------
+# Note: CollabAI currently runs local metadata database ingestion and mocks
+# email magic links inside credentials provider workflows. No third-party
+# SMTP credentials or Amazon S3 access keys are required at this stage.

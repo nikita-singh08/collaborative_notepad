@@ -1,0 +1,48 @@
+{
+  "name": "@liveblocks-examples/nextjs-tldraw-whiteboard-storage",
+  "description": "This example shows how to build a tldraw app using Liveblocks Storage, and Next.js.",
+  "license": "Apache-2.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint src"
+  },
+  "dependencies": {
+    "@ai-sdk/google": "^3.0.82",
+    "@ai-sdk/react": "^3.0.205",
+    "@liveblocks/client": "^3.18.4",
+    "@liveblocks/node": "^3.18.4",
+    "@liveblocks/react": "^3.18.4",
+    "@liveblocks/react-ui": "^3.18.4",
+    "@prisma/client": "^6.19.3",
+    "@types/node": "20.3.3",
+    "@types/react-dom": "18.2.25",
+    "ai": "^6.0.203",
+    "bcryptjs": "^3.0.3",
+    "lucide-react": "^1.18.0",
+    "next": "^16.1.6",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "tldraw": "^3.0.3",
+    "zod": "^4.4.3",
+    "zustand": "^5.0.14"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.5",
+    "@tailwindcss/postcss": "^4.3.1",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/react": "^18.3.27",
+    "@typescript-eslint/eslint-plugin": "^8.61.1",
+    "@typescript-eslint/parser": "^8.61.1",
+    "autoprefixer": "^10.5.0",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^16.2.9",
+    "postcss": "^8.5.15",
+    "prettier": "^3.3.3",
+    "prisma": "^6.19.3",
+    "tailwindcss": "^4.3.1",
+    "typescript": "^5.4.5"
+  }
+}

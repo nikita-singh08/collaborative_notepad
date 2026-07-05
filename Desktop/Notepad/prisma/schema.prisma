@@ -1,0 +1,176 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  ADMIN
+  MODERATOR
+  MEMBER
+}
+
+enum RoomType {
+  GENERAL
+  NOTES
+  WHITEBOARD
+  CHAT
+  MEETING
+}
+
+enum TaskStatus {
+  BACKLOG
+  TODO
+  IN_PROGRESS
+  REVIEW
+  DONE
+}
+
+model User {
+  id               String            @id @default(uuid())
+  email            String            @unique
+  name             String?
+  avatar           String?
+  role             Role              @default(MEMBER)
+  password         String?           // For email credential login
+  bio              String?
+  skills           String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  
+  // Relations
+  memberships      WorkspaceMember[]
+  ownedWorkspaces  Workspace[]       @relation("WorkspaceOwner")
+  messages         Message[]
+  assignedTasks    Task[]            @relation("TaskAssignee")
+  createdTasks     Task[]            @relation("TaskCreator")
+}
+
+model Workspace {
+  id          String            @id @default(uuid())
+  name        String
+  slug        String            @unique
+  inviteCode  String            @unique @default(uuid())
+  ownerId     String
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  // Relations
+  owner       User              @relation("WorkspaceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members     WorkspaceMember[]
+  rooms       Room[]
+  tasks       Task[]
+  files       File[]
+}
+
+model WorkspaceMember {
+  id          String    @id @default(uuid())
+  workspaceId String
+  userId      String
+  role        Role      @default(MEMBER)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+}
+
+model Room {
+  id          String              @id @default(uuid())
+  name        String
+  type        RoomType            @default(GENERAL)
+  workspaceId String
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  // Relations
+  workspace   Workspace           @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  messages    Message[]
+  tasks       Task[]
+  files       File[]
+  meetings    MeetingTranscript[]
+}
+
+model Message {
+  id          String    @id @default(uuid())
+  content     String
+  senderId    String
+  roomId      String
+  parentId    String?   // For Slack-style thread replies
+  reactions   Json?     // Map of emoji to arrays of userIds, e.g. { "👍": ["userId1", "userId2"] }
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  sender      User      @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  room        Room      @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  parent      Message?  @relation("ThreadReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies     Message[] @relation("ThreadReplies")
+
+  @@index([roomId, createdAt])
+}
+
+model Task {
+  id          String     @id @default(uuid())
+  title       String
+  description String?
+  status      TaskStatus @default(TODO)
+  assigneeId  String?
+  creatorId   String
+  roomId      String?
+  workspaceId String
+  dueDate     DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Relations
+  assignee    User?      @relation("TaskAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  creator     User       @relation("TaskCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  room        Room?      @relation(fields: [roomId], references: [id], onDelete: SetNull)
+  workspace   Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+  @@index([roomId])
+}
+
+model File {
+  id          String    @id @default(uuid())
+  name        String
+  key         String    // Storage provider key (e.g. S3 / Local storage key)
+  url         String
+  fileType    String    // PDF, DOCX, PPTX, image, code
+  textContent String?   // Extracted text content for RAG indexing
+  roomId      String?
+  workspaceId String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  room        Room?     @relation(fields: [roomId], references: [id], onDelete: SetNull)
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+  @@index([roomId])
+}
+
+model MeetingTranscript {
+  id          String   @id @default(uuid())
+  summary     String
+  decisions   String   // Markdown string listing key decisions
+  actionItems String   // Markdown string listing actionable tasks
+  followUps   String?  // Markdown summary of follow-ups
+  transcript  String   // Full raw transcribed text of meeting
+  roomId      String
+  createdAt   DateTime @default(now())
+
+  // Relations
+  room        Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@index([roomId])
+}
